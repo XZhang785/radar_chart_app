@@ -508,6 +508,8 @@
                         <option value="4">4 个</option>
                         <option value="6">6 个</option>
                         <option value="8">8 个</option>
+                        <option value="12">12 个</option>
+                        <option value="all">显示全部</option>
                     </select>
                 </div>
                 
@@ -714,6 +716,17 @@
             if (!radarData) return;
 
             currentPage = 1;
+            
+            // 根据数据量自动设置合适的每页显示数量
+            const rowCount = radarData.data.rows.length;
+            if (rowCount <= 6) {
+                pageSize = rowCount;  // 6行及以下，自动显示全部
+                document.getElementById('pageSize').value = rowCount <= 8 ? String(rowCount) : '8';
+            } else {
+                pageSize = 4;  // 超过6行，默认显示4个
+                document.getElementById('pageSize').value = '4';
+            }
+
             document.getElementById('controlPanel').classList.add('show');
             document.getElementById('chartsSection').classList.add('show');
             document.getElementById('dataTableSection').style.display = 'block';
@@ -802,7 +815,9 @@
                 },
                 legend: {
                     data: ['实际值', '平均值'],
-                    bottom: 10,
+                    bottom: 5,
+                    itemWidth: 20,
+                    itemHeight: 10,
                     textStyle: {
                         fontSize: 14
                     }
@@ -811,6 +826,8 @@
                     indicator: data.indicators,
                     shape: 'polygon',
                     splitNumber: 5,
+                    radius: '65%',  // 缩小雷达图半径，为图例留出空间
+                    center: ['50%', '45%'],  // 调整雷达图位置
                     axisName: {
                         color: '#333',
                         fontSize: 14,
@@ -953,7 +970,12 @@
         }
 
         function changePageSize() {
-            pageSize = parseInt(document.getElementById('pageSize').value);
+            const selectedValue = document.getElementById('pageSize').value;
+            if (selectedValue === 'all') {
+                pageSize = radarData.data.rows.length;  // 显示全部
+            } else {
+                pageSize = parseInt(selectedValue);
+            }
             currentPage = 1;
             updateJumpSelect();
             renderCharts();
@@ -962,8 +984,19 @@
         function updatePagination() {
             const totalPages = Math.ceil(radarData.data.rows.length / pageSize);
             
-            document.getElementById('pageInfo').textContent = 
-                `第 ${currentPage} / ${totalPages} 页`;
+            // 如果只有一页或显示全部，隐藏分页按钮
+            if (pageSize >= radarData.data.rows.length) {
+                document.getElementById('pageInfo').textContent = `共 ${radarData.data.rows.length} 个`;
+                document.getElementById('prevBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('jumpSelect').style.display = 'none';
+            } else {
+                document.getElementById('pageInfo').textContent = 
+                    `第 ${currentPage} / ${totalPages} 页`;
+                document.getElementById('prevBtn').style.display = '';
+                document.getElementById('nextBtn').style.display = '';
+                document.getElementById('jumpSelect').style.display = '';
+            }
             document.getElementById('prevBtn').disabled = currentPage <= 1;
             document.getElementById('nextBtn').disabled = currentPage >= totalPages;
             document.getElementById('jumpSelect').value = currentPage;
