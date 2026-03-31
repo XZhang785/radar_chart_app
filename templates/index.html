@@ -847,7 +847,7 @@
                     <button class="export-btn secondary" onclick="showExportDialog('long')" id="exportLongBtn">
                         导出长图
                     </button>
-                    <button class="export-btn" onclick="showExportDialog('multiple')" id="exportMultipleBtn">
+                    <button class="export-btn" onclick="exportMultipleCharts()" id="exportMultipleBtn">
                         导出多张图
                     </button>
                 </div>
@@ -1364,21 +1364,9 @@
                     </div>
                 `;
             } else if (type === 'multiple') {
-                title.textContent = '导出多张图';
-                radarData.data.rows.forEach((row, idx) => {
-                    html += `
-                        <div class="export-option" onclick="exportMultipleCharts()">
-                            <h4>${row.label}</h4>
-                            <p>选中后将导出全部雷达图（多张图片）</p>
-                        </div>
-                    `;
-                });
-                html += `
-                    <div class="export-option" onclick="exportMultipleCharts()">
-                        <h4>导出全部</h4>
-                        <p>一次导出所有雷达图为多张图片</p>
-                    </div>
-                `;
+                // 直接导出，不显示对话框
+                exportMultipleCharts();
+                return;
             }
             
             options.innerHTML = html;
