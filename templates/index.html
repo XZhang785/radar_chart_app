@@ -1697,12 +1697,15 @@
                     
                     await new Promise(resolve => setTimeout(resolve, 300));
                     
-                    const url = chart.getDataURL({
-                        type: 'png',
-                        pixelRatio: 2,
-                        backgroundColor: '#fff'
+                    // 使用 html2canvas 截取整个容器（包括标题）
+                    const canvas = await html2canvas(tempContainer, {
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
                     });
                     
+                    const url = canvas.toDataURL('image/png');
                     downloadImage(url, `${row.label}.png`);
                     
                     chart.dispose();
