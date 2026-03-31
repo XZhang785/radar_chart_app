@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达图分析工具</title>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 上传区域 */
+        .upload-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .upload-area {
+            border: 3px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 50px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f6ff;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 文件信息 */
+        .file-info {
+            display: none;
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .file-info.show {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-stats {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .file-remove {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .control-panel.show {
+            display: block;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .control-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: #333;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* 图表区域 */
+        .charts-section {
+            display: none;
+        }
+
+        .charts-section.show {
+            display: block;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .chart-container {
+            height: 400px;
+        }
+
+        /* 数据表格 */
+        .data-table-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f6ff;
+        }
+
+        .highlight {
+            background: #fff3cd !important;
+            font-weight: 600;
+        }
+
+        /* 提示框 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ff4757;
+        }
+
+        .toast.success {
+            border-left: 4px solid #2ed573;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 30px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* 数据预览 */
+        .preview-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .preview-scroll {
+            max-height: 300px;
+            overflow: auto;
+        }
+
+        /* 统计摘要 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📊 雷达图分析工具</h1>
+            <p>上传数据文件，自动生成雷达图对比分析</p>
+        </div>
+
+        <!-- 上传区域 -->
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">拖拽文件到此处或点击上传</div>
+                <div class="upload-hint">支持 CSV、XLSX、XLS 格式</div>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    选择文件
+                </button>
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                <span class="file-icon">📄</span>
+                <div class="file-details">
+                    <div class="file-name" id="fileName">-</div>
+                    <div class="file-stats" id="fileStats">-</div>
+                </div>
+                <button class="file-remove" onclick="removeFile()">移除</button>
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel" id="controlPanel">
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label">每页显示:</span>
+                    <select class="control-select" id="pageSize" onchange="changePageSize()">
+                        <option value="1">1 个</option>
+                        <option value="2">2 个</option>
+                        <option value="4">4 个</option>
+                        <option value="6">6 个</option>
+                        <option value="8">8 个</option>
+                    </select>
+                </div>
+                
+                <div class="pagination">
+                    <button class="page-btn" id="prevBtn" onclick="prevPage()">◀ 上一页</button>
+                    <span class="page-info" id="pageInfo">第 1 / 1 页</span>
+                    <button class="page-btn" id="nextBtn" onclick="nextPage()">下一页 ▶</button>
+                </div>
+                
+                <div class="control-group">
+                    <span class="control-label">跳转到:</span>
+                    <select class="control-select" id="jumpSelect" onchange="jumpToPage()">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据预览 -->
+        <div class="preview-section" id="previewSection">
+            <div class="preview-header">
+                <h3 class="section-title">📋 数据预览</h3>
+                <button class="upload-btn" onclick="generateCharts()">生成雷达图</button>
+            </div>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="preview-scroll">
+                <div class="table-wrapper">
+                    <table id="previewTable"></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载动画 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>正在处理数据...</div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-section" id="chartsSection">
+            <h2 class="section-title">📊 雷达图对比分析</h2>
+            <div class="charts-grid" id="chartsGrid"></div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="data-table-section" id="dataTableSection" style="display: none;">
+            <h3 class="section-title">📈 详细数据对比</h3>
+            <div class="table-wrapper">
+                <table id="dataTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 全局变量
+        let radarData = null;
+        let currentPage = 1;
+        let pageSize = 4;
+        let charts = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUploadArea();
+        });
+
+        // 设置上传区域
+        function setupUploadArea() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // 点击上传
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // 拖拽上传
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            // 文件选择
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        // 处理文件
+        async function handleFile(file) {
+            const validExtensions = ['csv', 'xlsx', 'xls'];
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            if (!validExtensions.includes(extension)) {
+                showToast('请上传 CSV、XLSX 或 XLS 格式的文件', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || '上传失败');
+                }
+
+                radarData = result;
+                displayFileInfo(file, result);
+                displayPreview(result);
+                showToast('文件上传成功！', 'success');
+
+            } catch (error) {
+                showToast(error.message, 'error');
+                console.error('上传错误:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 显示文件信息
+        function displayFileInfo(file, result) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileStats').textContent = 
+                `共 ${result.validation.total_rows} 行 × ${result.validation.total_columns} 列`;
+            document.getElementById('fileInfo').classList.add('show');
+        }
+
+        // 显示数据预览
+        function displayPreview(result) {
+            const data = result.data;
+            const previewSection = document.getElementById('previewSection');
+            const statsGrid = document.getElementById('statsGrid');
+            const previewTable = document.getElementById('previewTable');
+
+            // 统计卡片
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.total_rows}</div>
+                    <div class="stat-label">数据行数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.summary.total_columns}</div>
+                    <div class="stat-label">分析维度</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.average.original.length}</div>
+                    <div class="stat-label">平均值数量</div>
+                </div>
+            `;
+
+            // 预览表格
+            let tableHtml = '<thead><tr><th>标签</th>';
+            data.columns.forEach(col => {
+                tableHtml += `<th>${col}</th>`;
+            });
+            tableHtml += '<th>操作</th></tr></thead><tbody>';
+
+            data.rows.forEach((row, idx) => {
+                tableHtml += `<tr>
+                    <td><strong>${row.label}</strong></td>`;
+                row.original_values.forEach(val => {
+                    tableHtml += `<td>${typeof val === 'number' ? val.toFixed(2) : val}</td>`;
+                });
+                tableHtml += `<td><button class="page-btn" onclick="viewSingleChart(${idx})">查看雷达图</button></td></tr>`;
+            });
+
+            // 平均值行
+            tableHtml += `<tr class="highlight">
+                <td><strong>平均值</strong></td>`;
+            data.average.original.forEach(val => {
+                tableHtml += `<td>${val.toFixed(2)}</td>`;
+            });
+            tableHtml += `<td>-</td></tr></tbody>`;
+
+            previewTable.innerHTML = tableHtml;
+            previewSection.classList.add('show');
+        }
+
+        // 生成雷达图
+        function generateCharts() {
+            if (!radarData) return;
+
+            currentPage = 1;
+            document.getElementById('controlPanel').classList.add('show');
+            document.getElementById('chartsSection').classList.add('show');
+            document.getElementById('dataTableSection').style.display = 'block';
+
+            updateJumpSelect();
+            renderCharts();
+            renderDataTable();
+        }
+
+        // 更新跳转选择器
+        function updateJumpSelect() {
+            const totalPages = Math.ceil(radarData.data.rows.length / pageSize);
+            const jumpSelect = document.getElementById('jumpSelect');
+            jumpSelect.innerHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                jumpSelect.innerHTML += `<option value="${i}">第 ${i} 页</option>`;
+            }
+        }
+
+        // 渲染图表
+        function renderCharts() {
+            const chartsGrid = document.getElementById('chartsGrid');
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, radarData.data.rows.length);
+            const pageData = radarData.data.rows.slice(start, end);
+
+            chartsGrid.innerHTML = '';
+            charts = [];
+
+            pageData.forEach((row, idx) => {
+                const card = document.createElement('div');
+                card.className = 'chart-card';
+                card.innerHTML = `
+                    <div class="chart-title">${row.label}</div>
+                    <div class="chart-container" id="chart-${idx}"></div>
+                `;
+                chartsGrid.appendChild(card);
+
+                // 延迟初始化图表，确保DOM已渲染
+                setTimeout(() => {
+                    initChart(idx, row);
+                }, 100);
+            });
+
+            updatePagination();
+        }
+
+        // 初始化单个雷达图
+        function initChart(index, rowData) {
+            const chartDom = document.getElementById(`chart-${index}`);
+            if (!chartDom) return;
+
+            const chart = echarts.init(chartDom);
+            charts.push(chart);
+
+            const data = radarData.data;
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    textStyle: {
+                        color: '#333',
+                        fontSize: 14
+                    },
+                    formatter: function(params) {
+                        if (params.seriesName === '实际值') {
+                            const idx = params.dataIndex;
+                            const col = data.columns[idx];
+                            const original = rowData.original_values[idx];
+                            return `<strong>${col}</strong><br/>
+                                    实际值: ${original.toFixed(2)}<br/>
+                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
+                        } else {
+                            const idx = params.dataIndex;
+                            const col = data.columns[idx];
+                            const original = data.average.original[idx];
+                            return `<strong>${col} (平均值)</strong><br/>
+                                    平均值: ${original.toFixed(2)}<br/>
+                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
+                        }
+                    }
+                },
+                legend: {
+                    data: ['实际值', '平均值'],
+                    bottom: 10,
+                    textStyle: {
+                        fontSize: 14
+                    }
+                },
+                radar: {
+                    indicator: data.indicators,
+                    shape: 'polygon',
+                    splitNumber: 5,
+                    axisName: {
+                        color: '#333',
+                        fontSize: 14,
+                        fontWeight: 600
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    splitArea: {
+                        show: true,
+                        areaStyle: {
+                            color: ['#f8f6ff', '#f0eeff', '#e8e5ff', '#ddd9ff', '#d4cfff']
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#ccc'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        type: 'radar',
+                        emphasis: {
+                            lineStyle: {
+                                width: 4
+                            }
+                        },
+                        data: [
+                            {
+                                value: rowData.normalized_values,
+                                name: '实际值',
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                lineStyle: {
+                                    width: 3,
+                                    color: '#667eea'
+                                },
+                                areaStyle: {
+                                    color: 'rgba(102, 126, 234, 0.4)'
+                                },
+                                itemStyle: {
+                                    color: '#667eea',
+                                    borderColor: '#fff',
+                                    borderWidth: 2
+                                }
+                            },
+                            {
+                                value: data.average.normalized,
+                                name: '平均值',
+                                symbol: 'rect',
+                                symbolSize: 6,
+                                lineStyle: {
+                                    width: 2,
+                                    color: '#ff6b6b',
+                                    type: 'dashed'
+                                },
+                                areaStyle: {
+                                    color: 'rgba(255, 107, 107, 0.2)'
+                                },
+                                itemStyle: {
+                                    color: '#ff6b6b',
+                                    borderColor: '#fff',
+                                    borderWidth: 2
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            chart.setOption(option);
+
+            // 响应式
+            window.addEventListener('resize', () => {
+                chart.resize();
+            });
+        }
+
+        // 渲染数据表格
+        function renderDataTable() {
+            const table = document.getElementById('dataTable');
+            const data = radarData.data;
+
+            let html = '<thead><tr><th>标签</th>';
+            data.columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '<th>与平均值对比</th></tr></thead><tbody>';
+
+            data.rows.forEach(row => {
+                const diff = row.original_values.map((v, i) => v - data.average.original[i]);
+                const avgDiff = diff.reduce((a, b) => a + b, 0) / diff.length;
+                const status = avgDiff > 0 ? '📈 高于平均' : (avgDiff < 0 ? '📉 低于平均' : '➖ 等于平均');
+
+                html += `<tr>
+                    <td><strong>${row.label}</strong></td>`;
+                row.original_values.forEach((val, idx) => {
+                    const diffVal = val - data.average.original[idx];
+                    const color = diffVal > 0 ? '#2ed573' : (diffVal < 0 ? '#ff4757' : '#666');
+                    const sign = diffVal > 0 ? '+' : '';
+                    html += `<td style="color: ${color}">${val.toFixed(2)} (${sign}${diffVal.toFixed(2)})</td>`;
+                });
+                html += `<td>${status}</td></tr>`;
+            });
+
+            table.innerHTML = html;
+        }
+
+        // 查看单个图表
+        function viewSingleChart(index) {
+            currentPage = Math.floor(index / pageSize) + 1;
+            generateCharts();
+            
+            // 滚动到图表区域
+            document.getElementById('chartsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 分页控制
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderCharts();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(radarData.data.rows.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderCharts();
+            }
+        }
+
+        function jumpToPage() {
+            currentPage = parseInt(document.getElementById('jumpSelect').value);
+            renderCharts();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            updateJumpSelect();
+            renderCharts();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(radarData.data.rows.length / pageSize);
+            
+            document.getElementById('pageInfo').textContent = 
+                `第 ${currentPage} / ${totalPages} 页`;
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+            document.getElementById('jumpSelect').value = currentPage;
+        }
+
+        // 移除文件
+        function removeFile() {
+            radarData = null;
+            currentPage = 1;
+            charts = [];
+            
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').classList.remove('show');
+            document.getElementById('previewSection').classList.remove('show');
+            document.getElementById('controlPanel').classList.remove('show');
+            document.getElementById('chartsSection').classList.remove('show');
+            document.getElementById('dataTableSection').style.display = 'none';
+            document.getElementById('chartsGrid').innerHTML = '';
+            
+            // 销毁图表实例
+            charts.forEach(chart => chart.dispose());
+            charts = [];
+        }
+
+        // 加载状态
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+
+        // 提示框
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
