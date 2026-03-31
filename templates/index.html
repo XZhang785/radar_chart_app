@@ -1413,19 +1413,22 @@
                 
                 const chart = charts[chartIndex];
                 const chartDom = document.getElementById(`chart-${chartIndex}`);
+                const chartCard = chartDom.closest('.chart-card');
                 
                 // 确保图表已渲染
                 chart.resize();
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // 使用 ECharts 的导出功能
-                const url = chart.getDataURL({
-                    type: 'png',
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
+                // 使用 html2canvas 截取整个卡片（包括标题）
+                const canvas = await html2canvas(chartCard, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
                 });
                 
                 // 下载图片
+                const url = canvas.toDataURL('image/png');
                 downloadImage(url, `${label}.png`);
                 showToast('导出成功！', 'success');
                 
