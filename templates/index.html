@@ -1182,10 +1182,17 @@
                         fontSize: 14
                     },
                     formatter: function(params) {
+                        console.log('params:', params);
+                        console.log('columns:', data.columns);
+                        
                         // 从第一个 series 获取维度名称
-                        const dimName = params[0]?.name || params[0]?.axisValueLabel || '';
+                        const dimName = params[0]?.name || params[0]?.axisValueLabel || params[0]?.axisValue || '';
+                        console.log('dimName:', dimName);
+                        
                         const idx = data.columns.indexOf(dimName);
-                        if (idx === -1) return '';
+                        console.log('idx:', idx);
+                        
+                        if (idx === -1) return '未找到维度: ' + dimName;
                         
                         let html = `<strong>${dimName}</strong><br/>`;
                         
