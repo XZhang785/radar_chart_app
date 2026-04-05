@@ -1010,7 +1010,7 @@ async def home():
                         
                         const card = document.createElement('div');
                         card.style.cssText = 'background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; width: 550px; box-sizing: border-box;';
-                        card.innerHTML = '<div style="font-size: 1.2rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">' + row.label + '</div><div style="width: 500px; height: 400px;"><canvas id="export-canvas-' + i + '"></canvas></div>';
+                        card.innerHTML = '<div style="font-size: 1.2rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">' + row.label + '</div><div style="width: 500px; height: 400px;"><canvas id="export-canvas-' + i + '" width="500" height="400"></canvas></div>';
                         chartsDiv.appendChild(card);
                     }
                     
@@ -1098,8 +1098,8 @@ async def home():
                     
                     // 创建临时容器
                     const exportContainer = document.createElement('div');
-                    exportContainer.style.cssText = 'position: absolute; left: 0; top: 0; width: 800px; background: #ffffff; padding: 30px; box-sizing: border-box;';
-                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;"><h3 style="font-size: 1.5rem; color: #333; margin: 0;" id="export-title"></h3></div><div style="width: 100%; height: 450px;"><canvas id="export-single-canvas"></canvas></div>';
+                    exportContainer.style.cssText = 'position: absolute; left: 0; top: 0; width: 600px; background: #ffffff; padding: 30px; box-sizing: border-box;';
+                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;"><h3 style="font-size: 1.5rem; color: #333; margin: 0;" id="export-title"></h3></div><div style="width: 100%; height: 400px;"><canvas id="export-single-canvas" width="540" height="400"></canvas></div>';
                     
                     wrapper.appendChild(exportContainer);
                     document.body.appendChild(wrapper);
