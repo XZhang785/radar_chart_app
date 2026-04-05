@@ -50,3 +50,13 @@ uploads/
 *.bak
 *.swp
 nul
+
+# Node.js
+node_modules/
+package-lock.json
+package.json
+
+# Test files
+test_radar.html
+run_test.js
+test_multi_dim.csv
