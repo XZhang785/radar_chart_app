@@ -986,19 +986,19 @@ async def home():
                 
                 try {
                     const data = radarData.data;
-                    const container = document.getElementById('longImageContainer');
-                    const grid = document.getElementById('longImageGrid');
                     
-                    document.getElementById('longImageTitle').textContent = '雷达图对比分析';
-                    document.getElementById('longImageSubtitle').textContent = '数据来源: ' + currentFileName;
-                    
-                    grid.innerHTML = '';
+                    // 创建包装容器（用于正确定位）
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: visible;';
                     
                     // 创建临时容器用于html2canvas
                     const exportContainer = document.createElement('div');
-                    exportContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 1200px; background: white; padding: 40px;';
-                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;"><h2 style="font-size: 1.5rem; color: #333; margin-bottom: 10px;">雷达图对比分析</h2><p style="color: #666;">数据来源: ' + currentFileName + '</p></div><div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>';
+                    exportContainer.style.cssText = 'position: absolute; left: 0; top: 0; width: 1200px; background: #ffffff; padding: 40px; box-sizing: border-box;';
+                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;"><h2 style="font-size: 1.5rem; color: #333; margin: 0 0 10px 0;">雷达图对比分析</h2><p style="color: #666; margin: 0;">数据来源: ' + currentFileName + '</p></div><div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>';
                     const chartsDiv = exportContainer.querySelector('div:last-child');
+                    
+                    wrapper.appendChild(exportContainer);
+                    document.body.appendChild(wrapper);
                     
                     progressFill.style.width = '20%';
                     progressText.textContent = '正在创建图表...';
@@ -1009,12 +1009,10 @@ async def home():
                         const row = data.rows[i];
                         
                         const card = document.createElement('div');
-                        card.style.cssText = 'background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; width: 550px;';
+                        card.style.cssText = 'background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; width: 550px; box-sizing: border-box;';
                         card.innerHTML = '<div style="font-size: 1.2rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">' + row.label + '</div><div style="width: 500px; height: 400px;"><canvas id="export-canvas-' + i + '"></canvas></div>';
                         chartsDiv.appendChild(card);
                     }
-                    
-                    document.body.appendChild(exportContainer);
                     
                     await new Promise(r => setTimeout(r, 300));
                     
@@ -1036,7 +1034,13 @@ async def home():
                                     { label: '平均值', data: data.average.normalized, backgroundColor: 'rgba(255, 107, 107, 0.2)', borderColor: '#ff6b6b', borderWidth: 2, borderDash: [5, 5] }
                                 ]
                             },
-                            options: { responsive: false, animation: false, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } }
+                            options: { 
+                                responsive: false, 
+                                animation: false, 
+                                plugins: { legend: { position: 'bottom' } }, 
+                                scales: { r: { suggestedMin: 0, suggestedMax: 1 } },
+                                backgroundColor: '#ffffff'
+                            }
                         });
                         chartInstances.push(chart);
                         
@@ -1049,12 +1053,19 @@ async def home():
                     progressFill.style.width = '75%';
                     progressText.textContent = '正在生成图片...';
                     
-                    const canvas = await html2canvas(exportContainer, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
+                    const canvas = await html2canvas(exportContainer, { 
+                        backgroundColor: '#ffffff', 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false,
+                        width: 1280,
+                        height: exportContainer.offsetHeight + 50
+                    });
                     downloadImage(canvas.toDataURL('image/png'), currentFileName + '_雷达图.png');
                     
                     // 清理
                     chartInstances.forEach(chart => chart.destroy());
-                    document.body.removeChild(exportContainer);
+                    document.body.removeChild(wrapper);
                     
                     progressFill.style.width = '100%';
                     progressText.textContent = '导出完成！';
@@ -1081,11 +1092,17 @@ async def home():
                     const data = radarData.data;
                     const totalCharts = data.rows.length;
                     
+                    // 创建包装容器（用于正确定位）
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: visible;';
+                    
                     // 创建临时容器
                     const exportContainer = document.createElement('div');
-                    exportContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 800px; background: white; padding: 30px;';
-                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;"><h3 style="font-size: 1.5rem; color: #333;" id="export-title"></h3></div><div style="width: 700px; height: 500px;"><canvas id="export-single-canvas"></canvas></div>';
-                    document.body.appendChild(exportContainer);
+                    exportContainer.style.cssText = 'position: absolute; left: 0; top: 0; width: 800px; background: #ffffff; padding: 30px; box-sizing: border-box;';
+                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;"><h3 style="font-size: 1.5rem; color: #333; margin: 0;" id="export-title"></h3></div><div style="width: 100%; height: 450px;"><canvas id="export-single-canvas"></canvas></div>';
+                    
+                    wrapper.appendChild(exportContainer);
+                    document.body.appendChild(wrapper);
                     
                     const canvas = document.getElementById('export-single-canvas');
                     const ctx = canvas.getContext('2d');
@@ -1117,14 +1134,21 @@ async def home():
                                 responsive: false, 
                                 animation: false,
                                 plugins: { legend: { position: 'bottom' } }, 
-                                scales: { r: { suggestedMin: 0, suggestedMax: 1 } } 
+                                scales: { r: { suggestedMin: 0, suggestedMax: 1 } },
+                                backgroundColor: '#ffffff'
                             }
                         });
                         
                         await new Promise(r => setTimeout(r, 200));
                         
-                        // 使用 Chart.js 原生方法导出，避免失真
-                        downloadImage(canvas.toDataURL('image/png'), row.label + '.png');
+                        // 使用html2canvas导出，带白色背景
+                        const exportCanvas = await html2canvas(exportContainer, {
+                            backgroundColor: '#ffffff',
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        downloadImage(exportCanvas.toDataURL('image/png'), row.label + '.png');
                         
                         await new Promise(r => setTimeout(r, 300));
                     }
@@ -1132,7 +1156,7 @@ async def home():
                     // 清理
                     const finalChart = Chart.getChart('export-single-canvas');
                     if (finalChart) finalChart.destroy();
-                    document.body.removeChild(exportContainer);
+                    document.body.removeChild(wrapper);
                     
                     progressFill.style.width = '100%';
                     progressText.textContent = '导出完成！';
