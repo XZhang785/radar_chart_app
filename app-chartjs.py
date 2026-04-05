@@ -258,12 +258,12 @@ async def home():
             
             <!-- 上传区域 -->
             <div class="upload-section">
-                <div class="upload-area" id="uploadArea">
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📁</div>
                     <div class="upload-text">拖拽文件到此处或点击上传</div>
                     <div class="upload-hint">支持 CSV、XLSX、XLS 格式</div>
                     <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
-                    <button class="upload-btn">选择文件</button>
+                    <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">选择文件</button>
                 </div>
                 
                 <div class="file-info" id="fileInfo">
