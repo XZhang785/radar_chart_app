@@ -1170,7 +1170,10 @@
 
             const option = {
                 tooltip: {
-                    trigger: 'item',
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'line'
+                    },
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     borderColor: '#667eea',
                     borderWidth: 2,
@@ -1180,7 +1183,7 @@
                     },
                     formatter: function(params) {
                         // 从第一个 series 获取维度名称
-                        const dimName = params[0]?.name || '';
+                        const dimName = params[0]?.name || params[0]?.axisValueLabel || '';
                         const idx = data.columns.indexOf(dimName);
                         if (idx === -1) return '';
                         
@@ -1250,7 +1253,7 @@
                                 value: rowData.normalized_values,
                                 name: '实际值',
                                 symbol: 'circle',
-                                symbolSize: 8,
+                                symbolSize: 12,
                                 lineStyle: {
                                     width: 3,
                                     color: '#667eea'
@@ -1268,7 +1271,7 @@
                                 value: data.average.normalized,
                                 name: '平均值',
                                 symbol: 'rect',
-                                symbolSize: 6,
+                                symbolSize: 10,
                                 lineStyle: {
                                     width: 2,
                                     color: '#ff6b6b',
