@@ -246,6 +246,11 @@ async def home():
                 .control-row { flex-direction: column; align-items: flex-start; }
                 .chart-container { height: 300px; }
             }
+            
+            /* 单人对比表格样式 */
+            .diff-positive { color: #2ed573; font-weight: 600; }
+            .diff-negative { color: #ff4757; font-weight: 600; }
+            .diff-neutral { color: #666; }
         </style>
     </head>
     <body>
@@ -284,6 +289,7 @@ async def home():
             <!-- Tab 导航 -->
             <div class="tab-navigation" id="tabNavigation">
                 <button class="tab-btn active" onclick="switchTab('preview')" id="tabPreview">数据预览</button>
+                <button class="tab-btn" onclick="switchTab('compare')" id="tabCompare">单人对比</button>
                 <button class="tab-btn" onclick="switchTab('charts')" id="tabCharts">雷达图分析</button>
                 <button class="tab-btn" onclick="switchTab('data')" id="tabData">详细数据</button>
             </div>
@@ -294,6 +300,43 @@ async def home():
                 <div class="stats-grid" id="statsGrid"></div>
                 <div class="table-scroll" id="previewTableWrapper">
                     <table id="previewTable"></table>
+                </div>
+            </div>
+            
+            <!-- Tab 2: 单人对比 -->
+            <div class="tab-content" id="contentCompare">
+                <h3 class="content-title">单人雷达图对比</h3>
+                
+                <!-- 学生选择器 -->
+                <div class="select-section" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+                    <span class="control-label">选择学生:</span>
+                    <select class="control-select" id="studentSelect" onchange="updateCompareChart()">
+                    </select>
+                </div>
+                
+                <!-- 单人雷达图 -->
+                <div class="chart-card" style="max-width: 700px; margin: 0 auto 30px;">
+                    <div class="chart-title" id="compareChartTitle">雷达图</div>
+                    <div class="chart-container" style="height: 450px;">
+                        <canvas id="compareChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 详细指标表格 -->
+                <div class="table-scroll">
+                    <h4 style="margin-bottom: 15px; color: #333;">各指标详细数据</h4>
+                    <table id="compareDataTable">
+                        <thead>
+                            <tr>
+                                <th>指标</th>
+                                <th>实际值</th>
+                                <th>平均值</th>
+                                <th>差值</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
             
@@ -384,6 +427,8 @@ async def home():
             let pageSize = 4;
             let charts = [];
             let currentFileName = '';
+            let compareChartInstance = null;
+            let currentCompareIndex = 0;
             
             // 初始化
             document.addEventListener('DOMContentLoaded', () => {
@@ -433,6 +478,13 @@ async def home():
                         charts.forEach(chart => chart.resize());
                     }, 100);
                 }
+                
+                // 调整单人对比图表大小
+                if (tabName === 'compare' && compareChartInstance) {
+                    setTimeout(() => {
+                        compareChartInstance.resize();
+                    }, 100);
+                }
             }
             
             // 处理文件
@@ -460,6 +512,7 @@ async def home():
                     displayPreview(result);
                     generateChartsData();
                     renderDataTable();
+                    initCompareChart();
                     
                     document.getElementById('tabNavigation').classList.add('show');
                     switchTab('preview');
@@ -505,6 +558,147 @@ async def home():
                 html += '<td>-</td></tr></tbody>';
                 
                 document.getElementById('previewTable').innerHTML = html;
+            }
+            
+            // ==================== 单人对比功能 ====================
+            
+            // 初始化单人对比图表
+            function initCompareChart() {
+                if (!radarData) return;
+                
+                // 初始化学生选择器
+                const studentSelect = document.getElementById('studentSelect');
+                studentSelect.innerHTML = '';
+                radarData.data.rows.forEach((row, idx) => {
+                    const option = document.createElement('option');
+                    option.value = idx;
+                    option.textContent = row.label;
+                    studentSelect.appendChild(option);
+                });
+                
+                currentCompareIndex = 0;
+                updateCompareChart();
+            }
+            
+            // 更新单人对比图表
+            function updateCompareChart() {
+                const idx = parseInt(document.getElementById('studentSelect').value);
+                currentCompareIndex = idx;
+                
+                const row = radarData.data.rows[idx];
+                const data = radarData.data;
+                
+                // 更新标题
+                document.getElementById('compareChartTitle').textContent = row.label + ' 的雷达图对比';
+                
+                // 销毁旧图表
+                if (compareChartInstance) {
+                    compareChartInstance.destroy();
+                }
+                
+                const ctx = document.getElementById('compareChart').getContext('2d');
+                compareChartInstance = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: data.columns,
+                        datasets: [
+                            {
+                                label: row.label + ' (实际值)',
+                                data: row.normalized_values,
+                                backgroundColor: 'rgba(102, 126, 234, 0.4)',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                pointBackgroundColor: '#667eea',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: '#667eea',
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            },
+                            {
+                                label: '平均值',
+                                data: data.average.normalized,
+                                backgroundColor: 'rgba(255, 107, 107, 0.2)',
+                                borderColor: '#ff6b6b',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                pointBackgroundColor: '#ff6b6b',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: '#ff6b6b',
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const dataIdx = context.dataIndex;
+                                        if (context.datasetIndex === 0) {
+                                            const original = row.original_values[dataIdx];
+                                            const avg = data.average.original[dataIdx];
+                                            return context.dataset.label + ': ' + original.toFixed(2) + ' (平均: ' + avg.toFixed(2) + ')';
+                                        } else {
+                                            return context.dataset.label + ': ' + data.average.original[dataIdx].toFixed(2);
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 1,
+                                ticks: {
+                                    stepSize: 0.25,
+                                    callback: function(value) {
+                                        return (value * 100) + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 更新详细数据表格
+                updateCompareDataTable(idx);
+            }
+            
+            // 更新对比详细数据表格
+            function updateCompareDataTable(idx) {
+                const row = radarData.data.rows[idx];
+                const data = radarData.data;
+                
+                let html = '';
+                data.columns.forEach((col, i) => {
+                    const original = row.original_values[i];
+                    const avg = data.average.original[i];
+                    const diff = original - avg;
+                    const diffClass = diff > 0 ? 'diff-positive' : (diff < 0 ? 'diff-negative' : 'diff-neutral');
+                    const diffText = diff > 0 ? '+' + diff.toFixed(2) : diff.toFixed(2);
+                    const status = diff > 0 ? '↑ 高于平均' : (diff < 0 ? '↓ 低于平均' : '= 等于平均');
+                    
+                    html += '<tr>';
+                    html += '<td><strong>' + col + '</strong></td>';
+                    html += '<td>' + original.toFixed(2) + '</td>';
+                    html += '<td>' + avg.toFixed(2) + '</td>';
+                    html += '<td class="' + diffClass + '">' + diffText + '</td>';
+                    html += '<td class="' + diffClass + '">' + status + '</td>';
+                    html += '</tr>';
+                });
+                
+                document.querySelector('#compareDataTable tbody').innerHTML = html;
             }
             
             // 生成雷达图数据
