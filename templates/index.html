@@ -6,8 +6,6 @@
     <title>雷达图分析工具</title>
     <!-- ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <!-- html2canvas for exporting -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- 字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -204,7 +202,7 @@
             display: block;
         }
 
-        /* 内容标题 */
+        /* 内容标题（不使用Emoji） */
         .content-title {
             font-size: 1.3rem;
             font-weight: 700;
@@ -320,213 +318,6 @@
             height: 400px;
         }
 
-        /* 导出按钮组 */
-        .export-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .export-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .export-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .export-btn {
-            background: linear-gradient(135deg, #2ed573 0%, #26a65b 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .export-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
-        }
-
-        .export-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .export-btn.secondary {
-            background: linear-gradient(135deg, #ffa502 0%, #ff7f00 100%);
-        }
-
-        .export-btn.secondary:hover {
-            box-shadow: 0 5px 15px rgba(255, 165, 2, 0.4);
-        }
-
-        /* 导出覆盖层 */
-        .export-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .export-overlay.show {
-            display: flex;
-        }
-
-        .export-dialog {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-        }
-
-        .export-dialog h3 {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .export-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .export-option {
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .export-option:hover {
-            border-color: #667eea;
-            background: #f8f6ff;
-        }
-
-        .export-option h4 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .export-option p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .export-option.selected {
-            border-color: #667eea;
-            background: #f0eeff;
-        }
-
-        .export-close {
-            margin-top: 20px;
-            background: #f0f0f0;
-            color: #333;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .export-close:hover {
-            background: #e0e0e0;
-        }
-
-        /* 导出进度 */
-        .export-progress {
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #f0f0f0;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* 长图导出容器 */
-        .long-image-container {
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            background: white;
-            padding: 40px;
-        }
-
-        .long-image-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .long-image-header h2 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .long-image-header p {
-            color: #666;
-        }
-
-        .long-image-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            justify-content: center;
-        }
-
-        .long-image-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            width: 550px;
-        }
-
-        .long-image-card .chart-title {
-            margin-bottom: 10px;
-        }
-
         /* 数据表格 */
         .table-wrapper {
             overflow-x: auto;
@@ -627,10 +418,6 @@
             border-left: 4px solid #2ed573;
         }
 
-        .toast.warning {
-            border-left: #ffa502;
-        }
-
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -703,11 +490,6 @@
                 padding: 15px 20px;
                 font-size: 0.9rem;
             }
-
-            .export-section {
-                flex-direction: column;
-                align-items: flex-start;
-            }
         }
 
         /* 自定义滚动条 */
@@ -744,32 +526,6 @@
         .action-btn:hover {
             background: #5a6fd6;
             transform: translateY(-1px);
-        }
-
-        /* 单选按钮组 */
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .radio-item input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
-        }
-
-        .radio-item label {
-            font-size: 0.95rem;
-            color: #333;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -837,22 +593,6 @@
         <div class="tab-content" id="contentCharts">
             <h3 class="content-title">雷达图对比分析</h3>
             
-            <!-- 导出按钮组 -->
-            <div class="export-section" id="exportSection">
-                <div class="export-group">
-                    <span class="export-label">导出方式:</span>
-                    <button class="export-btn" onclick="showExportDialog('single')" id="exportSingleBtn">
-                        导出单张图
-                    </button>
-                    <button class="export-btn secondary" onclick="showExportDialog('long')" id="exportLongBtn">
-                        导出长图
-                    </button>
-                    <button class="export-btn" onclick="exportMultipleCharts()" id="exportMultipleBtn">
-                        导出多张图
-                    </button>
-                </div>
-            </div>
-
             <!-- 控制面板 -->
             <div class="control-panel show" id="controlPanel">
                 <div class="control-row">
@@ -895,30 +635,6 @@
         </div>
     </div>
 
-    <!-- 导出对话框 -->
-    <div class="export-overlay" id="exportOverlay">
-        <div class="export-dialog">
-            <h3 id="exportDialogTitle">选择要导出的雷达图</h3>
-            <div class="export-options" id="exportOptions"></div>
-            <div class="export-progress" id="exportProgress" style="display: none;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                </div>
-                <div class="progress-text" id="progressText">准备导出...</div>
-            </div>
-            <button class="export-close" onclick="closeExportDialog()">关闭</button>
-        </div>
-    </div>
-
-    <!-- 长图导出容器 -->
-    <div class="long-image-container" id="longImageContainer">
-        <div class="long-image-header">
-            <h2 id="longImageTitle">雷达图对比分析</h2>
-            <p id="longImageSubtitle"></p>
-        </div>
-        <div class="long-image-grid" id="longImageGrid"></div>
-    </div>
-
     <!-- 提示框 -->
     <div class="toast" id="toast"></div>
 
@@ -929,7 +645,6 @@
         let pageSize = 4;
         let charts = [];
         let currentTab = 'preview';
-        let currentFileName = '';
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -940,6 +655,9 @@
         function setupUploadArea() {
             const uploadArea = document.getElementById('uploadArea');
             const fileInput = document.getElementById('fileInput');
+
+            // 点击上传
+            uploadArea.addEventListener('click', () => fileInput.click());
 
             // 拖拽上传
             uploadArea.addEventListener('dragover', (e) => {
@@ -999,9 +717,6 @@
             }
 
             showLoading(true);
-
-            // 保存文件名（不含扩展名）
-            currentFileName = file.name.replace(/\.[^/.]+$/, '');
 
             const formData = new FormData();
             formData.append('file', file);
@@ -1170,10 +885,7 @@
 
             const option = {
                 tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'line'
-                    },
+                    trigger: 'item',
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     borderColor: '#667eea',
                     borderWidth: 2,
@@ -1182,32 +894,21 @@
                         fontSize: 14
                     },
                     formatter: function(params) {
-                        console.log('params:', params);
-                        console.log('columns:', data.columns);
-                        
-                        // 从第一个 series 获取维度名称
-                        const dimName = params[0]?.name || params[0]?.axisValueLabel || params[0]?.axisValue || '';
-                        console.log('dimName:', dimName);
-                        
-                        const idx = data.columns.indexOf(dimName);
-                        console.log('idx:', idx);
-                        
-                        if (idx === -1) return '未找到维度: ' + dimName;
-                        
-                        let html = `<strong>${dimName}</strong><br/>`;
-                        
-                        // 遍历所有 series 显示数据
-                        params.forEach(p => {
-                            if (p.seriesName === '实际值') {
-                                const original = rowData.original_values[idx];
-                                html += `实际值: ${original.toFixed(2)} (${(p.value * 100).toFixed(1)}%)<br/>`;
-                            } else if (p.seriesName === '平均值') {
-                                const original = data.average.original[idx];
-                                html += `平均值: ${original.toFixed(2)} (${(p.value * 100).toFixed(1)}%)<br/>`;
-                            }
-                        });
-                        
-                        return html;
+                        if (params.seriesName === '实际值') {
+                            const idx = params.dataIndex;
+                            const col = data.columns[idx];
+                            const original = rowData.original_values[idx];
+                            return `<strong>${col}</strong><br/>
+                                    实际值: ${original.toFixed(2)}<br/>
+                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
+                        } else {
+                            const idx = params.dataIndex;
+                            const col = data.columns[idx];
+                            const original = data.average.original[idx];
+                            return `<strong>${col} (平均值)</strong><br/>
+                                    平均值: ${original.toFixed(2)}<br/>
+                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
+                        }
                     }
                 },
                 legend: {
@@ -1260,7 +961,7 @@
                                 value: rowData.normalized_values,
                                 name: '实际值',
                                 symbol: 'circle',
-                                symbolSize: 12,
+                                symbolSize: 8,
                                 lineStyle: {
                                     width: 3,
                                     color: '#667eea'
@@ -1278,7 +979,7 @@
                                 value: data.average.normalized,
                                 name: '平均值',
                                 symbol: 'rect',
-                                symbolSize: 10,
+                                symbolSize: 6,
                                 lineStyle: {
                                     width: 2,
                                     color: '#ff6b6b',
@@ -1346,401 +1047,7 @@
             }
         }
 
-        // ==================== 导出功能 ====================
-
-        // 显示导出对话框
-        function showExportDialog(type) {
-            const overlay = document.getElementById('exportOverlay');
-            const options = document.getElementById('exportOptions');
-            const title = document.getElementById('exportDialogTitle');
-            
-            let html = '';
-            
-            if (type === 'single') {
-                title.textContent = '选择要导出的雷达图';
-                radarData.data.rows.forEach((row, idx) => {
-                    html += `
-                        <div class="export-option" onclick="exportSingleChart(${idx}, '${row.label}')">
-                            <h4>${row.label}</h4>
-                            <p>导出 ${row.label} 的雷达图</p>
-                        </div>
-                    `;
-                });
-            } else if (type === 'long') {
-                title.textContent = '导出长图';
-                html = `
-                    <div class="export-option" onclick="exportLongImage()">
-                        <h4>导出全部雷达图（长图）</h4>
-                        <p>将所有雷达图合并为一张长图，命名为文件名</p>
-                    </div>
-                `;
-            } else if (type === 'multiple') {
-                // 直接导出，不显示对话框
-                exportMultipleCharts();
-                return;
-            }
-            
-            options.innerHTML = html;
-            overlay.classList.add('show');
-        }
-
-        // 关闭导出对话框
-        function closeExportDialog() {
-            document.getElementById('exportOverlay').classList.remove('show');
-            document.getElementById('exportProgress').style.display = 'none';
-        }
-
-        // 导出单张雷达图
-        async function exportSingleChart(index, label) {
-            closeExportDialog();
-            showToast('正在导出...', 'warning');
-            
-            try {
-                // 先跳转到包含该图表的页面
-                const targetPage = Math.floor(index / pageSize) + 1;
-                if (targetPage !== currentPage) {
-                    currentPage = targetPage;
-                    renderCharts();
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                
-                // 计算在当前页面中的图表索引
-                const chartIndex = index - (currentPage - 1) * pageSize;
-                if (chartIndex < 0 || chartIndex >= charts.length) {
-                    throw new Error('图表未找到');
-                }
-                
-                const chart = charts[chartIndex];
-                const chartDom = document.getElementById(`chart-${chartIndex}`);
-                const chartCard = chartDom.closest('.chart-card');
-                
-                // 确保图表已渲染
-                chart.resize();
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // 使用 html2canvas 截取整个卡片（包括标题）
-                const canvas = await html2canvas(chartCard, {
-                    backgroundColor: '#ffffff',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                
-                // 下载图片
-                const url = canvas.toDataURL('image/png');
-                downloadImage(url, `${label}.png`);
-                showToast('导出成功！', 'success');
-                
-            } catch (error) {
-                console.error('导出失败:', error);
-                showToast('导出失败: ' + error.message, 'error');
-            }
-        }
-
-        // 导出长图（所有雷达图合并为一张）
-        async function exportLongImage() {
-            closeExportDialog();
-            showToast('正在生成长图...', 'warning');
-            
-            const progress = document.getElementById('exportProgress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            
-            progress.style.display = 'block';
-            
-            try {
-                // 切换到显示全部模式
-                const originalPageSize = pageSize;
-                pageSize = radarData.data.rows.length;
-                renderCharts();
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                progressText.textContent = '正在渲染图表...';
-                progressFill.style.width = '30%';
-                
-                // 创建长图容器
-                const container = document.getElementById('longImageContainer');
-                const grid = document.getElementById('longImageGrid');
-                const title = document.getElementById('longImageTitle');
-                const subtitle = document.getElementById('longImageSubtitle');
-                
-                title.textContent = '雷达图对比分析';
-                subtitle.textContent = `数据来源: ${currentFileName}`;
-                
-                // 清空并重建网格
-                grid.innerHTML = '';
-                
-                // 重新渲染所有图表
-                for (let i = 0; i < radarData.data.rows.length; i++) {
-                    const row = radarData.data.rows[i];
-                    const card = document.createElement('div');
-                    card.className = 'long-image-card';
-                    card.innerHTML = `
-                        <div class="chart-title">${row.label}</div>
-                        <div class="chart-container" id="export-chart-${i}" style="width: 500px; height: 400px;"></div>
-                    `;
-                    grid.appendChild(card);
-                }
-                
-                // 显示容器
-                container.style.left = '0';
-                container.style.top = '0';
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                progressFill.style.width = '50%';
-                progressText.textContent = '正在初始化图表...';
-                
-                // 初始化所有图表
-                const exportCharts = [];
-                for (let i = 0; i < radarData.data.rows.length; i++) {
-                    const row = radarData.data.rows[i];
-                    const chartDom = document.getElementById(`export-chart-${i}`);
-                    const chart = echarts.init(chartDom);
-                    
-                    const data = radarData.data;
-                    chart.setOption({
-                        tooltip: {
-                            trigger: 'item',
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            borderColor: '#667eea',
-                            borderWidth: 2,
-                            textStyle: { color: '#333', fontSize: 14 }
-                        },
-                        legend: {
-                            data: ['实际值', '平均值'],
-                            bottom: 5,
-                            itemWidth: 20,
-                            itemHeight: 10,
-                            textStyle: { fontSize: 14 }
-                        },
-                        radar: {
-                            indicator: data.indicators,
-                            shape: 'polygon',
-                            splitNumber: 5,
-                            radius: '65%',
-                            center: ['50%', '45%'],
-                            axisName: { color: '#333', fontSize: 14, fontWeight: 600 },
-                            splitLine: { lineStyle: { color: '#e0e0e0' } },
-                            splitArea: {
-                                show: true,
-                                areaStyle: { color: ['#f8f6ff', '#f0eeff', '#e8e5ff', '#ddd9ff', '#d4cfff'] }
-                            },
-                            axisLine: { lineStyle: { color: '#ccc' } }
-                        },
-                        series: [{
-                            type: 'radar',
-                            emphasis: { lineStyle: { width: 4 } },
-                            data: [
-                                {
-                                    value: row.normalized_values,
-                                    name: '实际值',
-                                    symbol: 'circle',
-                                    symbolSize: 8,
-                                    lineStyle: { width: 3, color: '#667eea' },
-                                    areaStyle: { color: 'rgba(102, 126, 234, 0.4)' },
-                                    itemStyle: { color: '#667eea', borderColor: '#fff', borderWidth: 2 }
-                                },
-                                {
-                                    value: data.average.normalized,
-                                    name: '平均值',
-                                    symbol: 'rect',
-                                    symbolSize: 6,
-                                    lineStyle: { width: 2, color: '#ff6b6b', type: 'dashed' },
-                                    areaStyle: { color: 'rgba(255, 107, 107, 0.2)' },
-                                    itemStyle: { color: '#ff6b6b', borderColor: '#fff', borderWidth: 2 }
-                                }
-                            ]
-                        }]
-                    });
-                    
-                    exportCharts.push(chart);
-                    
-                    progressFill.style.width = 50 + (i / radarData.data.rows.length) * 20 + '%';
-                    progressText.textContent = `正在渲染图表 ${i + 1}/${radarData.data.rows.length}...`;
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-                
-                progressFill.style.width = '70%';
-                progressText.textContent = '正在生成图片...';
-                
-                // 使用 html2canvas 截图
-                const canvas = await html2canvas(container, {
-                    backgroundColor: '#ffffff',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                
-                progressFill.style.width = '90%';
-                progressText.textContent = '正在下载...';
-                
-                // 下载图片
-                const url = canvas.toDataURL('image/png');
-                downloadImage(url, `${currentFileName}_雷达图.png`);
-                
-                // 清理
-                exportCharts.forEach(chart => chart.dispose());
-                container.style.left = '-9999px';
-                
-                // 恢复原始设置
-                pageSize = originalPageSize;
-                renderCharts();
-                
-                progressFill.style.width = '100%';
-                progressText.textContent = '导出完成！';
-                showToast('长图导出成功！', 'success');
-                
-                setTimeout(() => {
-                    progress.style.display = 'none';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('导出失败:', error);
-                showToast('导出失败: ' + error.message, 'error');
-                progress.style.display = 'none';
-            }
-        }
-
-        // 导出多张图（每个雷达图单独一张）
-        async function exportMultipleCharts() {
-            closeExportDialog();
-            showToast('正在导出多张图片...', 'warning');
-            
-            const progress = document.getElementById('exportProgress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            
-            progress.style.display = 'block';
-            
-            try {
-                const totalCharts = radarData.data.rows.length;
-                
-                for (let i = 0; i < totalCharts; i++) {
-                    const row = radarData.data.rows[i];
-                    
-                    progressFill.style.width = ((i + 1) / totalCharts * 100) + '%';
-                    progressText.textContent = `正在导出 ${i + 1}/${totalCharts}: ${row.label}`;
-                    
-                    // 创建临时图表
-                    const tempContainer = document.createElement('div');
-                    tempContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 600px; height: 550px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);';
-                    tempContainer.innerHTML = `
-                        <div style="font-size: 1.3rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">${row.label}</div>
-                        <div id="temp-chart-${i}" style="width: 100%; height: 450px;"></div>
-                    `;
-                    document.body.appendChild(tempContainer);
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    const chartDom = document.getElementById(`temp-chart-${i}`);
-                    const chart = echarts.init(chartDom);
-                    const data = radarData.data;
-                    
-                    chart.setOption({
-                        tooltip: {
-                            trigger: 'item',
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            borderColor: '#667eea',
-                            borderWidth: 2,
-                            textStyle: { color: '#333', fontSize: 14 }
-                        },
-                        legend: {
-                            data: ['实际值', '平均值'],
-                            bottom: 5,
-                            itemWidth: 20,
-                            itemHeight: 10,
-                            textStyle: { fontSize: 14 }
-                        },
-                        radar: {
-                            indicator: data.indicators,
-                            shape: 'polygon',
-                            splitNumber: 5,
-                            radius: '65%',
-                            center: ['50%', '45%'],
-                            axisName: { color: '#333', fontSize: 14, fontWeight: 600 },
-                            splitLine: { lineStyle: { color: '#e0e0e0' } },
-                            splitArea: {
-                                show: true,
-                                areaStyle: { color: ['#f8f6ff', '#f0eeff', '#e8e5ff', '#ddd9ff', '#d4cfff'] }
-                            },
-                            axisLine: { lineStyle: { color: '#ccc' } }
-                        },
-                        series: [{
-                            type: 'radar',
-                            emphasis: { lineStyle: { width: 4 } },
-                            data: [
-                                {
-                                    value: row.normalized_values,
-                                    name: '实际值',
-                                    symbol: 'circle',
-                                    symbolSize: 8,
-                                    lineStyle: { width: 3, color: '#667eea' },
-                                    areaStyle: { color: 'rgba(102, 126, 234, 0.4)' },
-                                    itemStyle: { color: '#667eea', borderColor: '#fff', borderWidth: 2 }
-                                },
-                                {
-                                    value: data.average.normalized,
-                                    name: '平均值',
-                                    symbol: 'rect',
-                                    symbolSize: 6,
-                                    lineStyle: { width: 2, color: '#ff6b6b', type: 'dashed' },
-                                    areaStyle: { color: 'rgba(255, 107, 107, 0.2)' },
-                                    itemStyle: { color: '#ff6b6b', borderColor: '#fff', borderWidth: 2 }
-                                }
-                            ]
-                        }]
-                    });
-                    
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    
-                    // 使用 html2canvas 截取整个容器（包括标题）
-                    const canvas = await html2canvas(tempContainer, {
-                        backgroundColor: '#ffffff',
-                        scale: 2,
-                        useCORS: true,
-                        logging: false
-                    });
-                    
-                    const url = canvas.toDataURL('image/png');
-                    downloadImage(url, `${row.label}.png`);
-                    
-                    chart.dispose();
-                    document.body.removeChild(tempContainer);
-                    
-                    // 等待一小段时间确保下载完成
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                
-                progressFill.style.width = '100%';
-                progressText.textContent = '导出完成！';
-                showToast(`成功导出 ${totalCharts} 张图片！`, 'success');
-                
-                setTimeout(() => {
-                    progress.style.display = 'none';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('导出失败:', error);
-                showToast('导出失败: ' + error.message, 'error');
-                progress.style.display = 'none';
-            }
-        }
-
-        // 下载图片
-        function downloadImage(dataUrl, filename) {
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = dataUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // ==================== 分页控制 ====================
-
+        // 分页控制
         function prevPage() {
             if (currentPage > 1) {
                 currentPage--;
@@ -1798,7 +1105,6 @@
             radarData = null;
             currentPage = 1;
             charts = [];
-            currentFileName = '';
             
             document.getElementById('fileInput').value = '';
             document.getElementById('fileInfo').classList.remove('show');
