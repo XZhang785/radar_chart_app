@@ -1179,21 +1179,25 @@
                         fontSize: 14
                     },
                     formatter: function(params) {
-                        if (params.seriesName === '实际值') {
-                            const idx = params.dataIndex;
-                            const col = data.columns[idx];
-                            const original = rowData.original_values[idx];
-                            return `<strong>${col}</strong><br/>
-                                    实际值: ${original.toFixed(2)}<br/>
-                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
-                        } else {
-                            const idx = params.dataIndex;
-                            const col = data.columns[idx];
-                            const original = data.average.original[idx];
-                            return `<strong>${col} (平均值)</strong><br/>
-                                    平均值: ${original.toFixed(2)}<br/>
-                                    归一化: ${(params.value[idx] * 100).toFixed(1)}%`;
-                        }
+                        // 从第一个 series 获取维度名称
+                        const dimName = params[0]?.name || '';
+                        const idx = data.columns.indexOf(dimName);
+                        if (idx === -1) return '';
+                        
+                        let html = `<strong>${dimName}</strong><br/>`;
+                        
+                        // 遍历所有 series 显示数据
+                        params.forEach(p => {
+                            if (p.seriesName === '实际值') {
+                                const original = rowData.original_values[idx];
+                                html += `实际值: ${original.toFixed(2)} (${(p.value * 100).toFixed(1)}%)<br/>`;
+                            } else if (p.seriesName === '平均值') {
+                                const original = data.average.original[idx];
+                                html += `平均值: ${original.toFixed(2)} (${(p.value * 100).toFixed(1)}%)<br/>`;
+                            }
+                        });
+                        
+                        return html;
                     }
                 },
                 legend: {
