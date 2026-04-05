@@ -840,7 +840,7 @@ async def home():
                                     { label: '平均值', data: data.average.normalized, backgroundColor: 'rgba(255, 107, 107, 0.2)', borderColor: '#ff6b6b', borderWidth: 2, borderDash: [5, 5] }
                                 ]
                             },
-                            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } } }
+                            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } }
                         });
                         
                         progressFill.style.width = 50 + (i / radarData.data.rows.length) * 20 + '%';
