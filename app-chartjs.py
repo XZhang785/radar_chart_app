@@ -985,15 +985,7 @@ async def home():
                 progress.style.display = 'block';
                 
                 try {
-                    const originalPageSize = pageSize;
-                    pageSize = radarData.data.rows.length;
-                    renderCharts();
-                    
-                    await new Promise(r => setTimeout(r, 1000));
-                    
-                    progressText.textContent = '正在渲染图表...';
-                    progressFill.style.width = '30%';
-                    
+                    const data = radarData.data;
                     const container = document.getElementById('longImageContainer');
                     const grid = document.getElementById('longImageGrid');
                     
@@ -1002,30 +994,40 @@ async def home():
                     
                     grid.innerHTML = '';
                     
-                    for (let i = 0; i < radarData.data.rows.length; i++) {
-                        const row = radarData.data.rows[i];
+                    // 创建临时容器用于html2canvas
+                    const exportContainer = document.createElement('div');
+                    exportContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 1200px; background: white; padding: 40px;';
+                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;"><h2 style="font-size: 1.5rem; color: #333; margin-bottom: 10px;">雷达图对比分析</h2><p style="color: #666;">数据来源: ' + currentFileName + '</p></div><div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>';
+                    const chartsDiv = exportContainer.querySelector('div:last-child');
+                    
+                    progressFill.style.width = '20%';
+                    progressText.textContent = '正在创建图表...';
+                    
+                    // 为每个学生创建图表
+                    const chartInstances = [];
+                    for (let i = 0; i < data.rows.length; i++) {
+                        const row = data.rows[i];
+                        
                         const card = document.createElement('div');
-                        card.className = 'long-image-card';
-                        card.innerHTML = '<div class="chart-title">' + row.label + '</div><div class="chart-container" id="export-chart-' + i + '" style="width: 500px; height: 400px;"></div>';
-                        grid.appendChild(card);
+                        card.style.cssText = 'background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; width: 550px;';
+                        card.innerHTML = '<div style="font-size: 1.2rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">' + row.label + '</div><div style="width: 500px; height: 400px;"><canvas id="export-canvas-' + i + '"></canvas></div>';
+                        chartsDiv.appendChild(card);
                     }
                     
-                    container.style.left = '0';
-                    container.style.top = '0';
+                    document.body.appendChild(exportContainer);
                     
-                    await new Promise(r => setTimeout(r, 500));
+                    await new Promise(r => setTimeout(r, 300));
                     
-                    progressFill.style.width = '50%';
-                    progressText.textContent = '正在初始化图表...';
+                    progressFill.style.width = '40%';
+                    progressText.textContent = '正在渲染图表...';
                     
-                    // 初始化导出图表
-                    for (let i = 0; i < radarData.data.rows.length; i++) {
-                        const row = radarData.data.rows[i];
-                        const chartDom = document.getElementById('export-chart-' + i);
-                        const ctx = chartDom.getContext('2d');
-                        const data = radarData.data;
+                    // 初始化所有图表
+                    for (let i = 0; i < data.rows.length; i++) {
+                        const row = data.rows[i];
+                        const canvas = document.getElementById('export-canvas-' + i);
+                        const ctx = canvas.getContext('2d');
                         
-                        new Chart(ctx, {
+                        const chart = new Chart(ctx, {
                             type: 'radar',
                             data: {
                                 labels: data.columns,
@@ -1034,22 +1036,25 @@ async def home():
                                     { label: '平均值', data: data.average.normalized, backgroundColor: 'rgba(255, 107, 107, 0.2)', borderColor: '#ff6b6b', borderWidth: 2, borderDash: [5, 5] }
                                 ]
                             },
-                            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } }
+                            options: { responsive: false, animation: false, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } }
                         });
+                        chartInstances.push(chart);
                         
-                        progressFill.style.width = 50 + (i / radarData.data.rows.length) * 20 + '%';
-                        progressText.textContent = '正在渲染图表 ' + (i + 1) + '/' + radarData.data.rows.length + '...';
+                        progressFill.style.width = 40 + (i / data.rows.length) * 30 + '%';
+                        progressText.textContent = '正在渲染图表 ' + (i + 1) + '/' + data.rows.length + '...';
                     }
                     
-                    progressFill.style.width = '70%';
+                    await new Promise(r => setTimeout(r, 500));
+                    
+                    progressFill.style.width = '75%';
                     progressText.textContent = '正在生成图片...';
                     
-                    const canvas = await html2canvas(container, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+                    const canvas = await html2canvas(exportContainer, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
                     downloadImage(canvas.toDataURL('image/png'), currentFileName + '_雷达图.png');
                     
-                    container.style.left = '-9999px';
-                    pageSize = originalPageSize;
-                    renderCharts();
+                    // 清理
+                    chartInstances.forEach(chart => chart.destroy());
+                    document.body.removeChild(exportContainer);
                     
                     progressFill.style.width = '100%';
                     progressText.textContent = '导出完成！';
@@ -1073,25 +1078,32 @@ async def home():
                 progress.style.display = 'block';
                 
                 try {
-                    const totalCharts = radarData.data.rows.length;
+                    const data = radarData.data;
+                    const totalCharts = data.rows.length;
+                    
+                    // 创建临时容器
+                    const exportContainer = document.createElement('div');
+                    exportContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 800px; background: white; padding: 30px;';
+                    exportContainer.innerHTML = '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;"><h3 style="font-size: 1.5rem; color: #333;" id="export-title"></h3></div><div style="width: 700px; height: 500px;"><canvas id="export-single-canvas"></canvas></div>';
+                    document.body.appendChild(exportContainer);
+                    
+                    const canvas = document.getElementById('export-single-canvas');
+                    const ctx = canvas.getContext('2d');
                     
                     for (let i = 0; i < totalCharts; i++) {
-                        const row = radarData.data.rows[i];
+                        const row = data.rows[i];
                         
                         progressFill.style.width = ((i + 1) / totalCharts * 100) + '%';
                         progressText.textContent = '正在导出 ' + (i + 1) + '/' + totalCharts + ': ' + row.label;
                         
-                        // 创建临时图表
-                        const tempContainer = document.createElement('div');
-                        tempContainer.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 600px; height: 550px; background: white; padding: 20px; border-radius: 12px;';
-                        tempContainer.innerHTML = '<div style="font-size: 1.3rem; font-weight: 600; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; color: #333;">' + row.label + '</div><div style="width: 100%; height: 450px;"><canvas id="temp-chart-' + i + '"></canvas></div>';
-                        document.body.appendChild(tempContainer);
+                        // 更新标题
+                        document.getElementById('export-title').textContent = row.label + ' 雷达图对比';
                         
-                        await new Promise(r => setTimeout(r, 100));
+                        // 销毁旧图表
+                        const oldChart = Chart.getChart('export-single-canvas');
+                        if (oldChart) oldChart.destroy();
                         
-                        const ctx = document.getElementById('temp-chart-' + i).getContext('2d');
-                        const data = radarData.data;
-                        
+                        // 创建新图表
                         new Chart(ctx, {
                             type: 'radar',
                             data: {
@@ -1101,17 +1113,26 @@ async def home():
                                     { label: '平均值', data: data.average.normalized, backgroundColor: 'rgba(255, 107, 107, 0.2)', borderColor: '#ff6b6b', borderWidth: 2, borderDash: [5, 5] }
                                 ]
                             },
-                            options: { responsive: false, plugins: { legend: { position: 'bottom' } }, scales: { r: { suggestedMin: 0, suggestedMax: 1 } } }
+                            options: { 
+                                responsive: false, 
+                                animation: false,
+                                plugins: { legend: { position: 'bottom' } }, 
+                                scales: { r: { suggestedMin: 0, suggestedMax: 1 } } 
+                            }
                         });
                         
-                        await new Promise(r => setTimeout(r, 300));
+                        await new Promise(r => setTimeout(r, 200));
                         
-                        const canvas = await html2canvas(tempContainer, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+                        // 使用 Chart.js 原生方法导出，避免失真
                         downloadImage(canvas.toDataURL('image/png'), row.label + '.png');
                         
-                        document.body.removeChild(tempContainer);
-                        await new Promise(r => setTimeout(r, 500));
+                        await new Promise(r => setTimeout(r, 300));
                     }
+                    
+                    // 清理
+                    const finalChart = Chart.getChart('export-single-canvas');
+                    if (finalChart) finalChart.destroy();
+                    document.body.removeChild(exportContainer);
                     
                     progressFill.style.width = '100%';
                     progressText.textContent = '导出完成！';
